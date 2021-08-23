@@ -1,12 +1,9 @@
 // router 的入口文件
 const Router = require('koa-router')
 const router = new Router()
+const user = require('./users')
 
-router.get('/',async (ctx)=>{
-    ctx.body = "shouye"
-})
-router.get('/api/book/list', async(ctx)=>{
-    ctx.body = "book/list"
-})
-
+router.use(user.routes(),user.allowedMethods())
 module.exports = router;
+
+    
