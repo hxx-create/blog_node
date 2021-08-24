@@ -10,11 +10,21 @@ let pool = mysql.createPool({
 }) 
 
 // 对数据库进行增删改查
-function query(sql, callback){
-    pool.getConnection((err, connection)=>{
-        connection.query(sql,(err,rows)=>{
-            callback(err,rows)
-            connection.release()
+function query(sql, params){
+    return new Promise((resolve, reject)=>{
+        pool.getConnection((err, connection)=>{
+            if(err){
+                reject(err);
+                return;
+            }
+            connection.query(sql,params,(err,result)=>{
+                if(err){
+                    reject(err);
+                    return;
+                }
+                connection.release()
+                resolve(result)
+            })
         })
     })
 }

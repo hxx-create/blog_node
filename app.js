@@ -3,6 +3,10 @@ const Koa = require('koa2');
 const router = require('./router')
 const cors = require('koa2-cors'); //跨域处理
 const app = new Koa()
+const jwtKoa = require('koa-jwt')
+
+
+const SECRET = 'secret'; // demo，可更换
 const port = 3000;
 
 
@@ -15,6 +19,36 @@ app.use(cors({
     exposeHeaders: ['WWW-Authenticate', 'Server-Authorization'] //设置获取其他自定义字段
 })
 )
+// 中间件对token进行验证
+app.use(async (ctx, next) => {
+    return next().catch((err) => {
+        if (err.status === 401) {
+            ctx.status = 401;
+            ctx.body = {
+                code: 401,
+                msg: err.message
+            }
+        } else {
+            throw err;
+        }
+    })
+});
+app.use(jwtKoa({ secret: SECRET, passthrough: true }).unless({
+    //⽩名单,除了这⾥写的地址，其 他的URL都需要验证
+    path: [
+        '/',
+      '/api/article/detail',
+      '/api/user/login',
+      '/api/user/register',
+      '/api/article/allList',
+      '/api/article/classify',
+      '/api/article/list/Singleclassify',
+      '/api/article/upload',
+      '/api/comment/list',
+      '/api/article/typeList'
+    ] 
+    
+}));
 // .usr 调用router中间件
 // .routes() 启动路由
 // .allowedMethods : 允许任何请求（get post put）
